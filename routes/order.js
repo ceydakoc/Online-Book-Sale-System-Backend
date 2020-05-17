@@ -20,13 +20,13 @@ router.get('/', (req, res) => {
                 on: 'u.id = o.user_id'
             }
         ])
-        .withFields(['o.id', 'p.title', 'p.description', 'p.price', 'u.username'])
+        .withFields(['o.id', 'p.title', 'p.description', 'p.price', 'u.username','p.image','od.quantity as quantityOrdered'])
         .getAll()
         .then(orders => {
             if (orders.length > 0) {
                 res.json(orders);
             } else {
-                res.json({ message: "No orders found" });
+                res.json({ message: "No orders found" }); //hata burda
             }
 
         }).catch(err => res.json(err));
