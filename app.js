@@ -10,6 +10,7 @@ const app = express();
 const usersRouter = require('./routes/users');
 const productsRouter = require('./routes/products');
 const orderRouter = require('./routes/order');
+const authRouter = require('./routes/auth');
 
 /* CORS */
 app.use(cors({
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/users', usersRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/orders', orderRouter);
+app.use('/api/auth',authRouter);
 
 module.exports = app;
 
