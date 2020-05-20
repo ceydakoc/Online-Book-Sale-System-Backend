@@ -26,16 +26,35 @@ router.get('/', (req, res) => {
             if (orders.length > 0) {
                 res.json(orders);
             } else {
-                res.json({ message: "No orders found" }); //hata burda
+                res.json({ message: "No orders found" });
             }
 
         }).catch(err => res.json(err));
 });
 
+// GET ALL ORDERS ACCORDING TO USER
+router.get('/myOrders/:userId', (req, res) => {
+    console.log(req.params.userId)
+    database.table('orders as o')
+        .join()
+        .filter({ 'o.user_id': req.params.userId })
+        .withFields(['o.id', 'o.user_id', 'o.total', 'o.date'])
+        .getAll()
+        .then(orders => {
+            if (orders.length > 0) {
+                res.json(orders);
+            } else {
+                res.json({ message: "No orders found" });
+            }
+
+        }).catch(err => res.json(err));
+});
+
+
 // Get Single Order
 router.get('/:id', async (req, res) => {
     let orderId = req.params.id;
-    console.log(orderId);
+    console.log("order" + orderId);
 
     database.table('orders_details as od')
         .join([
@@ -70,22 +89,24 @@ router.get('/:id', async (req, res) => {
 router.post('/new', async (req, res) => {
     // let userId = req.body.userId;
     // let data = JSON.parse(req.body);
-    let { userId, products } = req.body;
+    let { userId, products, orderDate, orderTotal } = req.body;
     console.log(userId);
     console.log(products);
+    console.log(orderDate);
+    console.log(orderTotal);
 
     if (userId !== null && userId > 0) {
         database.table('orders')
             .insert({
-                user_id: userId
+                user_id: userId,
+                date: orderDate,
+                total: orderTotal
             }).then((newOrderId) => {
 
                 if (newOrderId > 0) {
                     products.forEach(async (p) => {
 
                         let data = await database.table('products').filter({ id: p.id }).withFields(['quantity']).get();
-
-
 
                         let inCart = parseInt(p.incart);
 
