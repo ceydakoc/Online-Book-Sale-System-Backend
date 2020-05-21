@@ -12,7 +12,7 @@ router.post('/new', async (req, res) => {
                 user_id: userId,
                 product_id: productId,
             }).then((newFavoriteId) => {
-                res.json(newFavoriteId)
+                res.json({newFavoriteId, success: true});
             }).catch(err => res.json(err));
     }
     else {
@@ -85,9 +85,16 @@ router.delete('/:userId/:productId', async (req, res) => {
         .filter({ 'f.user_id': userId, 'f.product_id': productId })
         .remove()
         .then(successNum   => {
-            res.status(200).json({
-                successNum : successNum
-            });
+            if(successNum > 0){
+                res.status(200).json({
+                    successNum : successNum,
+                    success: true
+                });
+            }
+            else {
+                res.json({ message: "Can not deleted.", success: false });
+            }
+            
         })
         .catch(err => console.log(err));
 });

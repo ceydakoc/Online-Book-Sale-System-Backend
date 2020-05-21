@@ -12,6 +12,7 @@ const productsRouter = require('./routes/products');
 const orderRouter = require('./routes/order');
 const authRouter = require('./routes/auth');
 const favoritesRouter = require('./routes/favorites');
+const ratingRouter = require('./routes/rating');
 
 /* CORS */
 app.use(cors({
@@ -33,6 +34,7 @@ app.use('/api/products', productsRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/auth',authRouter);
 app.use('/api/favorites',favoritesRouter);
+app.use('/api/rating',ratingRouter);
 
 module.exports = app;
 
