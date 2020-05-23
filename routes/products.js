@@ -49,20 +49,27 @@ const { database } = require('../config/helpers');
 /* GET all OF PRODC */
 router.get('/', function (req, res) {       // Sending Page Query Parameter is mandatory http://localhost:3636/api/products?page=1
     database.table('products as p')
+        .join([
+            {
+                table: "categories as c",
+                on: `c.id = p.cat_id`
+            }
+        ])
         .withFields([
             'p.title as name',
             'p.price',
             'p.quantity',
             'p.description',
             'p.image',
-            'p.id'
+            'p.id',
+            'c.title as category'
         ]).sort({ id: 1 })
         .getAll()
         .then(prods => {
             if (prods.length > 0) {
                 res.status(200).json({
                     count: prods.length,
-                    products : prods
+                    products: prods
                 });
             } else {
                 res.json({ message: "No products found" });
