@@ -2,6 +2,41 @@ const express = require('express');
 const router = express.Router();
 const { database } = require('../config/helpers');
 
+
+//Get all rating
+router.get('/', function (req, res) {
+    database.table('rating')
+        .withFields([ 'id' , 'user_id', 'product_id', 'value'])
+        .getAll().then((list) => {
+        if (list.length > 0) {
+            res.json({ratings: list, success: true });
+        } else {
+            res.json({message: 'NO RATING FOUND', success: false });
+        }
+    }).catch(err => res.json(err));
+});
+
+//Update rating
+router.put('/update', async (req, res) => {
+    let { userId, productId, value} = req.body;
+
+    database.table('rating as r')
+        .filter({
+            'r.product_id': productId,
+            'r.user_id': userId
+        })
+        .update({
+            value: value
+        })
+        .then(ratingObj => {
+            if (ratingObj > 0) {
+                res.json({ ratingObj, success: true });
+            } else {
+                res.json({ message: "Rating could not found.", success: false });
+            }
+        }).catch(err => res.json(err));
+});
+
 //Add new rating
 router.post('/new', async (req, res) => {
 
@@ -21,6 +56,28 @@ router.post('/new', async (req, res) => {
         res.json({ message: 'User not found', success: false });
     }
 
+});
+
+router.delete('/adminDelete/:ratingId', async (req, res) => {
+
+    let ratingId = req.params.ratingId;
+
+    database.table('rating as r')
+        .filter({ 'r.id': ratingId })
+        .remove()
+        .then(successNum => {
+            if (successNum > 0) {
+                res.status(200).json({
+                    successNum: successNum,
+                    success: true
+                });
+            }
+            else {
+                res.json({ message: "Can not deleted.", success: false });
+            }
+
+        })
+        .catch(err => console.log(err));
 });
 
 //Get product rating (according to user)
@@ -65,25 +122,6 @@ router.get('/:productId', async (req, res) => {
         }).catch(err => res.json(err));
 });
 
-//Update rating
-router.put('/update', async (req, res) => {
-    let { userId, productId, value} = req.body;
 
-    database.table('rating as r')
-        .filter({
-            'r.product_id': productId,
-            'r.user_id': userId
-        })
-        .update({
-            value: value
-        })
-        .then(ratingObj => {
-            if (ratingObj > 0) {
-                res.json({ ratingObj, success: true });
-            } else {
-                res.json({ message: "Rating could not found.", success: false });
-            }
-        }).catch(err => res.json(err));
-});
 
 module.exports = router;

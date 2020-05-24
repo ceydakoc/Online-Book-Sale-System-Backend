@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const { database } = require('../config/helpers');
 
+/*Get All*/
+router.get('/', function (req, res) {
+    database.table('favorites')
+        .withFields([ 'id' , 'user_id', 'product_id'])
+        .getAll().then((list) => {
+        if (list.length > 0) {
+            res.json({favorites: list, success: true });
+        } else {
+            res.json({message: 'NO FAVORITE FOUND', success: false });
+        }
+    }).catch(err => res.json(err));
+});
+
 router.post('/new', async (req, res) => {
 
     let { userId, productId } = req.body;
@@ -98,9 +111,6 @@ router.delete('/:userId/:productId', async (req, res) => {
         })
         .catch(err => console.log(err));
 });
-
-
-
 
 
 module.exports = router;
