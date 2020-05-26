@@ -5,7 +5,7 @@ const { database } = require('../config/helpers');
 /* GET users listing. */
 router.get('/', function (req, res) {
     database.table('users')
-        .withFields(['username', 'password', 'email', 'fname', 'lname', 'age', 'role', 'photoUrl', 'type', 'id'])
+        .withFields(['username', 'password', 'email', 'fname', 'lname', 'role', 'photoUrl', 'type', 'id'])
         .getAll().then((list) => {
             if (list.length > 0) {
                 res.json({ users: list, success: true });
@@ -34,7 +34,6 @@ router.put('/adminUpdate/:userId', async (req, res) => {
         let userFirstName = req.body.fname;
         let userLastName = req.body.lname;
         let userUsername = req.body.username;
-        let age = req.body.age;
         let role = req.body.role;
         let photoUrl = req.body.photoUrl;
         let type = req.body.type;
@@ -49,7 +48,6 @@ router.put('/adminUpdate/:userId', async (req, res) => {
                 username: userUsername !== undefined ? userUsername : user.username,
                 fname: userFirstName !== undefined ? userFirstName : user.fname,
                 lname: userLastName !== undefined ? userLastName : user.lname,
-                age: age !== undefined ? age : user.age,
                 role: role !== undefined ? role : user.role,
                 photoUrl: photoUrl !== undefined ? photoUrl : user.photoUrl,
                 type: type !== undefined ? type : user.type
@@ -94,7 +92,6 @@ router.post('/adminNew', async (req, res) => {
     let userFirstName = req.body.fname;
     let userLastName = req.body.lname;
     let userUsername = req.body.username;
-    let age = req.body.age;
     let role = req.body.role;
     let photoUrl = req.body.photoUrl;
     let type = req.body.type;
@@ -106,7 +103,6 @@ router.post('/adminNew', async (req, res) => {
             username: userUsername,
             fname: userFirstName,
             lname: userLastName,
-            age: age,
             role: role,
             photoUrl: photoUrl,
             type: type
@@ -120,12 +116,12 @@ router.post('/adminNew', async (req, res) => {
 router.get('/:userId', (req, res) => {
     let userId = req.params.userId;
     database.table('users').filter({ id: userId })
-        .withFields(['username', 'email', 'fname', 'lname', 'age', 'role', 'id'])
+        .withFields(['username', 'email', 'fname', 'lname', 'role', 'type', 'photoUrl', 'id'])
         .get().then(user => {
             if (user) {
-                res.json({ user });
+                res.json({ user: user, success: true });
             } else {
-                res.json({ message: `NO USER FOUND WITH ID : ${userId}` });
+                res.json({ message: `NO USER FOUND WITH ID : ${userId}`, success: false });
             }
         }).catch(err => res.json(err));
 });
@@ -162,7 +158,6 @@ router.patch('/:userId', async (req, res) => {
         let userFirstName = req.body.fname;
         let userLastName = req.body.lname;
         let userUsername = req.body.username;
-        let age = req.body.age;
 
         // Replace the user's information with the form data ( keep the data as is if no info is modified )
         database.table('users').filter({ id: userId }).update({
@@ -171,9 +166,31 @@ router.patch('/:userId', async (req, res) => {
             username: userUsername !== undefined ? userUsername : user.username,
             fname: userFirstName !== undefined ? userFirstName : user.fname,
             lname: userLastName !== undefined ? userLastName : user.lname,
-            age: age !== undefined ? age : user.age
         }).then(result => res.json('User updated successfully')).catch(err => res.json(err));
     }
 });
+
+/* UPDATE USER DATA */
+router.put('/adminUpdate/:userId', async (req, res) => {
+
+    let userId = req.body.id;     // Get the User ID from the parameter
+    let userImage = req.body.photoUrl;
+    let userRole = req.body.role;
+
+    // Replace the user's information with the form data ( keep the data as is if no info is modified )
+    database.table('users').filter({ id: userId }).update({
+        role: userRole,
+        photoUrl: userImage,
+    }).then(returnValue => {
+        if (returnValue > 0) {
+            res.json({ returnValue, success: true });
+        } else {
+            res.json({ message: "User could not found.", success: false });
+        }
+    })
+        .catch(err => res.json(err));
+
+});
+
 
 module.exports = router;

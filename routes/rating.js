@@ -16,6 +16,13 @@ router.get('/', function (req, res) {
     }).catch(err => res.json(err));
 });
 
+router.get('/statistic', function (req, res) {
+    database.query ("SELECT p.id as product_id, AVG(r.value) as average , COUNT(r.product_id) as count, p.short_desc, p.image FROM products p LEFT JOIN rating r ON r.product_id = p.id GROUP BY p.id") 
+    .then( result  =>  { 
+        res.json( result ) 
+      }).catch(err => res.json(err));
+});
+
 //Update rating
 router.put('/update', async (req, res) => {
     let { userId, productId, value} = req.body;

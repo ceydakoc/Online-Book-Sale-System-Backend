@@ -15,6 +15,13 @@ router.get('/', function (req, res) {
     }).catch(err => res.json(err));
 });
 
+router.get('/statistic', function (req, res) {
+    database.query ("SELECT p.id as product_id, COUNT(f.product_id) as count, p.short_desc, p.image FROM products p LEFT JOIN favorites f ON f.product_id = p.id GROUP BY p.id") 
+    .then( result  =>  { 
+        res.json( result ) 
+      }).catch(err => res.json(err));
+});
+
 router.post('/new', async (req, res) => {
 
     let { userId, productId } = req.body;
