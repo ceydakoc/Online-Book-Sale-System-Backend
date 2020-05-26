@@ -32,6 +32,49 @@ router.get('/', (req, res) => {
         }).catch(err => res.json(err));
 });
 
+router.get('/getAdmin/', (req, res) => {
+    database.table('orders as o')
+        .join([
+            {
+                table: 'users as u',
+                on: 'u.id = o.user_id'
+            }
+        ])
+        .withFields(['o.id', 'o.user_id', 'u.username', 'o.total', 'o.date'])
+        .getAll()
+        .then(orders => {
+            if (orders.length > 0) {
+                res.json({orders: orders, success: true});
+            } else {
+                res.json({ message: "No orders found" , success: false});
+            }
+
+        }).catch(err => res.json(err));
+});
+
+//Delete Order
+router.delete('/delete/:orderId', async (req, res) => {
+
+    let orderId = req.params.orderId;
+
+    database.table('orders as o')
+        .filter({ 'o.id': orderId })
+        .remove()
+        .then(successNum => {
+            if (successNum > 0) {
+                res.status(200).json({
+                    successNum: successNum,
+                    success: true
+                });
+            }
+            else {
+                res.json({ message: "Can not deleted.", success: false });
+            }
+
+        })
+        .catch(err => console.log(err));
+});
+
 // GET ALL ORDERS ACCORDING TO USER
 router.get('/myOrders/:userId', (req, res) => {
     console.log(req.params.userId)
@@ -71,7 +114,7 @@ router.get('/:id', async (req, res) => {
                 on: 'u.id = o.user_id'
             }
         ])
-        .withFields(['o.id', 'p.title', 'p.description', 'p.price', 'p.image', 'od.quantity as quantityOrdered'])
+        .withFields(['o.id', 'p.id as product_id', 'p.title', 'p.description', 'p.price', 'p.image', 'od.quantity as quantityOrdered'])
         .filter({ 'o.id': orderId })
         .getAll()
         .then(orders => {

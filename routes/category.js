@@ -16,7 +16,7 @@ router.get('/', function (req, res) {
 });
 
 /*Update category*/
-router.put('/update', async (req, res) => {
+router.put('/update/', async (req, res) => {
     let { id, title } = req.body;
 
     database.table('categories as c')
@@ -36,7 +36,7 @@ router.put('/update', async (req, res) => {
 });
 
 /*Add New Category*/
-router.post('/new', async (req, res) => {
+router.post('/new/', async (req, res) => {
 
     let title = req.body.title;
 
@@ -44,7 +44,7 @@ router.post('/new', async (req, res) => {
         .insert({
             title: title,
         }).then((newId) => {
-            res.json({ newId, success: true });
+            res.json({ newId: newId, success: true });
         }).catch(err => res.json(err));
 
 });
@@ -72,5 +72,23 @@ router.delete('/delete/:catId', async (req, res) => {
         .catch(err => console.log(err));
 });
 
+/*Get Single Category*/
+router.get('/getSingle/:catId', (req, res) => {
+    let catId = req.params.catId;
+    database.table('categories as c')
+        .withFields([
+            'c.id',
+            'c.title'
+        ])
+        .filter({ 'c.id': catId })
+        .get()
+        .then(cat => {
+            if (cat) {
+                res.status(200).json({cat: cat, success: true});
+            } else {
+                res.json({ message: `No category found with id ${catId}` , success: false});
+            }
+        }).catch(err => res.json(err));
+});
 
 module.exports = router;

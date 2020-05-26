@@ -5,6 +5,12 @@ const { database } = require('../config/helpers');
 /* GET all admin */
 router.get('/admin/', function (req, res) {       // Sending Page Query Parameter is mandatory http://localhost:3636/api/products?page=1
     database.table('products as p')
+        .join([
+            {
+                table: "categories as c",
+                on: `c.id = p.cat_id`
+            }
+        ])
         .withFields([
             'p.id',
             'p.title',
@@ -14,7 +20,8 @@ router.get('/admin/', function (req, res) {       // Sending Page Query Paramete
             'p.price',
             'p.quantity',
             'p.short_desc',
-            'p.cat_id'
+            'p.cat_id',
+            'c.title as cat_title'
         ]).sort({ id: 1 })
         .getAll()
         .then(prods => {
@@ -71,7 +78,7 @@ router.put('/adminUpdate/:productId', async (req, res) => {
 });
 
 //Add new product
-router.post('/adminNew', async (req, res) => {
+router.post('/adminNew/', async (req, res) => {
 
     let title = req.body.title;
     let image = req.body.image;
@@ -93,7 +100,7 @@ router.post('/adminNew', async (req, res) => {
             short_desc: short_desc,
             cat_id: cat_id
         }).then((newId) => {
-            res.json({ newId, success: true });
+            res.json({ newId: newId, success: true });
         }).catch(err => res.json(err));
 });
 
@@ -151,7 +158,41 @@ router.get('/', function (req, res) {       // Sending Page Query Parameter is m
         .catch(err => console.log(err));
 });
 
-/* GET singe product. */
+/* GET single product admin */
+router.get('/adminGetSingle/:prodId', (req, res) => {
+    let productId = req.params.prodId;
+    database.table('products as p')
+        .join([
+            {
+                table: "categories as c",
+                on: `c.id = p.cat_id`
+            }
+        ])
+        .withFields([
+            'p.id',
+            'p.title',
+            'p.image',
+            'p.images',
+            'p.description',
+            'p.price',
+            'p.quantity',
+            'p.short_desc',
+            'p.cat_id',
+            'c.title as cat_title'
+        ])
+        .filter({ 'p.id': productId })
+        .get()
+        .then(prod => {
+            console.log(prod);
+            if (prod) {
+                res.status(200).json({prod: prod, success: true});
+            } else {
+                res.json({ message: `No product found with id ${productId}` , success: false});
+            }
+        }).catch(err => res.json(err));
+});
+
+/* GET single product. */
 router.get('/:prodId', (req, res) => {
     let productId = req.params.prodId;
     database.table('products as p')
