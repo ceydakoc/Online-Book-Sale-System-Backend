@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
                 on: 'u.id = o.user_id'
             }
         ])
-        .withFields(['o.id', 'p.title', 'p.description', 'p.price', 'u.username','p.image','od.quantity as quantityOrdered'])
+        .withFields(['o.id', 'p.title', 'p.description', 'p.price', 'u.username','p.image','od.quantity as quantityOrdered', 'o.address'])
         .getAll()
         .then(orders => {
             if (orders.length > 0) {
@@ -40,7 +40,7 @@ router.get('/getAdmin/', (req, res) => {
                 on: 'u.id = o.user_id'
             }
         ])
-        .withFields(['o.id', 'o.user_id', 'u.username', 'o.total', 'o.date'])
+        .withFields(['o.id', 'o.user_id', 'u.username', 'o.total', 'o.date', 'o.address'])
         .getAll()
         .then(orders => {
             if (orders.length > 0) {
@@ -81,7 +81,7 @@ router.get('/myOrders/:userId', (req, res) => {
     database.table('orders as o')
         .join()
         .filter({ 'o.user_id': req.params.userId })
-        .withFields(['o.id', 'o.user_id', 'o.total', 'o.date'])
+        .withFields(['o.id', 'o.user_id', 'o.total', 'o.date', 'o.address'])
         .getAll()
         .then(orders => {
             if (orders.length > 0) {
@@ -114,7 +114,7 @@ router.get('/:id', async (req, res) => {
                 on: 'u.id = o.user_id'
             }
         ])
-        .withFields(['o.id', 'p.id as product_id', 'p.title', 'p.description', 'p.price', 'p.image', 'od.quantity as quantityOrdered'])
+        .withFields(['o.id', 'p.id as product_id', 'p.title', 'p.description', 'p.price', 'p.image', 'od.quantity as quantityOrdered', 'o.address'])
         .filter({ 'o.id': orderId })
         .getAll()
         .then(orders => {
@@ -132,18 +132,15 @@ router.get('/:id', async (req, res) => {
 router.post('/new', async (req, res) => {
     // let userId = req.body.userId;
     // let data = JSON.parse(req.body);
-    let { userId, products, orderDate, orderTotal } = req.body;
-    console.log(userId);
-    console.log(products);
-    console.log(orderDate);
-    console.log(orderTotal);
+    let { userId, products, orderDate, orderTotal, address } = req.body;
 
     if (userId !== null && userId > 0) {
         database.table('orders')
             .insert({
                 user_id: userId,
                 date: orderDate,
-                total: orderTotal
+                total: orderTotal,
+                address: address
             }).then((newOrderId) => {
 
                 if (newOrderId > 0) {

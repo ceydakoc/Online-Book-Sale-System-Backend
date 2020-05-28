@@ -104,6 +104,17 @@ router.post('/adminNew/', async (req, res) => {
         }).catch(err => res.json(err));
 });
 
+router.get('/topSelling', function (req, res) {
+    database.query ("SELECT p.id, p.title, p.image, p.images, p.description, p.quantity, p.cat_id, p.short_desc, p.price, c.title as category, SUM(od.quantity) as sum "
+    +"FROM products p LEFT JOIN orders_details od ON od.product_id = p.id "
+    +"INNER JOIN categories c ON c.id = p.cat_id "
+    +"GROUP BY p.id "
+    +"ORDER BY sum desc") 
+    .then( result  =>  { 
+        res.json( result ) 
+      }).catch(err => res.json(err));
+});
+
 router.delete('/adminDelete/:productId', async (req, res) => {
 
     let productId = req.params.productId;
@@ -142,6 +153,7 @@ router.get('/', function (req, res) {       // Sending Page Query Parameter is m
             'p.description',
             'p.image',
             'p.id',
+            'p.short_desc',
             'c.title as category'
         ]).sort({ id: 1 })
         .getAll()
