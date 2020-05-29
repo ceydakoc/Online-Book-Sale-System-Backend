@@ -14,6 +14,7 @@ const authRouter = require('./routes/auth');
 const favoritesRouter = require('./routes/favorites');
 const ratingRouter = require('./routes/rating');
 const categoryRouter = require('./routes/category');
+const contactRouter = require('./routes/contact');
 
 /* CORS */
 app.use(cors({
@@ -37,6 +38,7 @@ app.use('/api/auth',authRouter);
 app.use('/api/favorites',favoritesRouter);
 app.use('/api/rating',ratingRouter);
 app.use('/api/category',categoryRouter);
+app.use('/api/contact',contactRouter);
 
 module.exports = app;
 
