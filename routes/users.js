@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { database } = require('../config/helpers');
-
+const bcrypt = require('bcrypt');
 /* GET users listing. */
 router.get('/', function (req, res) {
     database.table('users')
@@ -192,5 +192,20 @@ router.put('/adminUpdate/:userId', async (req, res) => {
 
 });
 
+
+router.put('/updateUser/', async (req, res) => {
+
+    let userId = req.body.id;
+    let fname = req.body.fname;
+    let lname = req.body.lname;
+    let password = await bcrypt.hash(req.body.password, 10);
+
+    // Replace the user's information with the form data ( keep the data as is if no info is modified )
+    database.table('users').filter({ id: userId }).update({
+        fname: fname,
+        lname: lname,
+        password : password
+    }).then(result => res.json({ message : 'User updated successfully' , success : true})).catch(err => res.json(err));
+});
 
 module.exports = router;
