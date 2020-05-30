@@ -15,7 +15,7 @@ router.get('/', function (req, res) {
         }).catch(err => res.json(err));
 });
 
-//get sinle message
+//get single message
 router.get('/getSingle/:id', async (req, res) => {
 
     let messageId = req.params.id;
