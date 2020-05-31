@@ -3,7 +3,7 @@ const router = express.Router();
 const { database } = require('../config/helpers');
 
 /* GET all admin */
-router.get('/admin/', function (req, res) {       // Sending Page Query Parameter is mandatory http://localhost:3636/api/products?page=1
+router.get('/admin/', function (req, res) { 
     database.table('products as p')
         .join([
             {
@@ -41,40 +41,32 @@ router.get('/admin/', function (req, res) {       // Sending Page Query Paramete
 router.put('/adminUpdate/:productId', async (req, res) => {
     let productId = req.params.productId;
 
-    let product = await database.table('products').filter({ id: productId }).get();
-    if (product) {
+    let title = req.body.title;
+    let image = req.body.image;
+    let images = req.body.images;
+    let description = req.body.description;
+    let price = req.body.price;
+    let quantity = req.body.quantity;
+    let short_desc = req.body.short_desc;
+    let cat_id = req.body.cat_id;
 
-        let title = req.body.title;
-        let image = req.body.image;
-        let images = req.body.images;
-        let description = req.body.description;
-        let price = req.body.price;
-        let quantity = req.body.quantity;
-        let short_desc = req.body.short_desc;
-        let cat_id = req.body.cat_id;
-
-        database.table('products as p')
-            .filter({
-                'p.id': productId
-            })
-            .update({
-                title: title !== undefined ? title : product.title,
-                image: image !== undefined ? image : product.image,
-                images: images !== undefined ? images : product.images,
-                description: description !== undefined ? description : product.description,
-                price: price !== undefined ? price : product.price,
-                quantity: quantity !== undefined ? quantity : product.quantity,
-                short_desc: short_desc !== undefined ? short_desc : product.short_desc,
-                cat_id: cat_id !== undefined ? cat_id : product.cat_id
-            })
-            .then(returnValue => {
-                if (returnValue > 0) {
-                    res.json({ returnValue, success: true });
-                } else {
-                    res.json({ message: "Product could not found.", success: false });
-                }
-            }).catch(err => res.json(err));
+    var query;
+    if (image == null) {
+        query = "UPDATE products set title = '" + title + "', image = '" + image + "', images = " + null + ", description = '" + description +
+            "', price = " + price + ", quantity = " + quantity + ", short_desc = '" + short_desc + "', cat_id = " + cat_id + " where id = " + productId
     }
+    else {
+        query = "UPDATE products set title = '" + title + "', image = '" + image + "', images = '" + images + "', description = '" + description +
+            "', price = " + price + ", quantity = " + quantity + ", short_desc = '" + short_desc + "', cat_id = " + cat_id + " where id = " + productId
+    }
+    console.log(query);
+    database.query(query)
+        .then(result => {
+
+            res.json({ result, success: true });
+
+        }).catch(err => res.json(err));
+
 });
 
 //Add new product
@@ -105,14 +97,14 @@ router.post('/adminNew/', async (req, res) => {
 });
 
 router.get('/topSelling', function (req, res) {
-    database.query ("SELECT p.id, p.title, p.image, p.images, p.description, p.quantity, p.cat_id, p.short_desc, p.price, c.title as category, SUM(od.quantity) as sum "
-    +"FROM products p LEFT JOIN orders_details od ON od.product_id = p.id "
-    +"INNER JOIN categories c ON c.id = p.cat_id "
-    +"GROUP BY p.id "
-    +"ORDER BY sum desc") 
-    .then( result  =>  { 
-        res.json( result ) 
-      }).catch(err => res.json(err));
+    database.query("SELECT p.id, p.title, p.image, p.images, p.description, p.quantity, p.cat_id, p.short_desc, p.price, c.title as category, SUM(od.quantity) as sum "
+        + "FROM products p LEFT JOIN orders_details od ON od.product_id = p.id "
+        + "INNER JOIN categories c ON c.id = p.cat_id "
+        + "GROUP BY p.id "
+        + "ORDER BY sum desc")
+        .then(result => {
+            res.json(result)
+        }).catch(err => res.json(err));
 });
 
 router.delete('/adminDelete/:productId', async (req, res) => {
@@ -197,9 +189,9 @@ router.get('/adminGetSingle/:prodId', (req, res) => {
         .then(prod => {
             console.log(prod);
             if (prod) {
-                res.status(200).json({prod: prod, success: true});
+                res.status(200).json({ prod: prod, success: true });
             } else {
-                res.json({ message: `No product found with id ${productId}` , success: false});
+                res.json({ message: `No product found with id ${productId}`, success: false });
             }
         }).catch(err => res.json(err));
 });
