@@ -33,23 +33,17 @@ router.get('/', (req, res) => {
 });
 
 router.get('/getAdmin/', (req, res) => {
-    database.table('orders as o')
-        .join([
-            {
-                table: 'users as u',
-                on: 'u.id = o.user_id'
-            }
-        ])
-        .withFields(['o.id', 'o.user_id', 'u.username', 'o.total', 'o.date', 'o.address'])
-        .getAll()
-        .then(orders => {
-            if (orders.length > 0) {
-                res.json({orders: orders, success: true});
-            } else {
-                res.json({ message: "No orders found" , success: false});
-            }
-
-        }).catch(err => res.json(err));
+        database.query ("SELECT o.id, o.user_id, u.username, o.total, o.date, o.address"
+        + " FROM orders as o INNER JOIN users as u ON u.id = o.user_id"
+        + " ORDER BY o.date desc") 
+    .then( orders  =>  {
+        console.log(orders);
+        if (orders.length > 0) {
+            res.json({orders: orders, success: true});
+        } else {
+            res.json({ message: "No orders found" , success: false});
+        } 
+      }).catch(err => res.json(err));
 });
 
 //Delete Order
@@ -77,7 +71,6 @@ router.delete('/delete/:orderId', async (req, res) => {
 
 // GET ALL ORDERS ACCORDING TO USER
 router.get('/myOrders/:userId', (req, res) => {
-    console.log(req.params.userId)
     database.table('orders as o')
         .join()
         .filter({ 'o.user_id': req.params.userId })

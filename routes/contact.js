@@ -4,9 +4,9 @@ const { database } = require('../config/helpers');
 
 /*Get All Message*/
 router.get('/', function (req, res) {
-    database.table('messages')
-        .withFields(['id', 'date','name','email', 'subject','message','isRead'])
-        .getAll().then((list) => {
+
+    database.query("select * from messages as m ORDER BY m.date desc")
+        .then((list) => {
             if (list.length > 0) {
                 res.json({ messages: list, success: true });
             } else {
@@ -21,30 +21,30 @@ router.get('/getSingle/:id', async (req, res) => {
     let messageId = req.params.id;
 
     database.table('messages as m')
-        .withFields(['id' , 'name' , 'email', 'date', 'subject','message'])
+        .withFields(['id', 'name', 'email', 'date', 'subject', 'message'])
         .filter({ 'm.id': messageId })
         .getAll()
         .then(message => {
             if (message.length > 0) {
-                res.json({message :  messsage , success : true});
+                res.json({ message: messsage, success: true });
             } else {
-                res.json({ message: "No message found"  , success : false});
+                res.json({ message: "No message found", success: false });
             }
         }).catch(err => res.json(err));
 });
 
 router.get('/unread', function (req, res) {
-    database.query ("SELECT COUNT(id)" +  
-    "FROM messages" +
-     "WHERE isRead = false") 
-    .then( count  =>  { 
-        res.json(count ) 
-      }).catch(err => res.json(err));
+    database.query("SELECT COUNT(id)" +
+        "FROM messages" +
+        "WHERE isRead = false")
+        .then(count => {
+            res.json(count)
+        }).catch(err => res.json(err));
 });
 
 router.put('/update', async (req, res) => {
-    let  id = req.body.id
-    let  isRead = req.body.isRead;
+    let id = req.body.id
+    let isRead = req.body.isRead;
 
     database.table('messages as m')
         .filter({
@@ -76,7 +76,7 @@ router.post('/new/', async (req, res) => {
             name: name,
             email: email,
             subject: subject,
-            message: message,         
+            message: message,
         }).then((newId) => {
             res.json({ newId: newId, success: true });
         }).catch(err => res.json(err));
