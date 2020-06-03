@@ -51,7 +51,7 @@ router.put('/adminUpdate/:productId', async (req, res) => {
     let cat_id = req.body.cat_id;
 
     var query;
-    if (image == null) {
+    if (images == null) {
         query = "UPDATE products set title = '" + title + "', image = '" + image + "', images = " + null + ", description = '" + description +
             "', price = " + price + ", quantity = " + quantity + ", short_desc = '" + short_desc + "', cat_id = " + cat_id + " where id = " + productId
     }
